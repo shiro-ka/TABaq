@@ -1,0 +1,20 @@
+/* Responsive */
+@media (max-width: 768px) {
+    .icons-container {
+        grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+        gap: 15px;
+    }
+
+    .icon-image {
+        width: 52px;
+        height: 52px;
+    }
+
+    .header {
+        padding: 15px 20px;
+    }
+
+    .header-title {
+        font-size: 1.4rem;
+    }
+}
