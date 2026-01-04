@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TABaq - ブックマーク</title>
+  <link rel="stylesheet" href="newtab.css">
+</head>
+
+<body>
+  <div class="desktop">
+    <main class="icons-container">
+      <!-- ブックマークアイコンがここに挿入される -->
+    </main>
+  </div>
+
+  <!-- コンテキストメニュー -->
+  <div class="context-menu">
+    <!-- メニュー項目は JavaScript で動的に生成 -->
+  </div>
+  <!-- モーダル -->
+  <div id="add-bookmark-modal" class="modal-overlay hidden">
+    <div class="modal">
+      <div class="modal-header">
+        <h3>新しいブックマーク</h3>
+        <button class="modal-close-btn">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label for="bookmark-title">タイトル</label>
+          <input type="text" id="bookmark-title" placeholder="タイトルを入力">
+        </div>
+        <div class="form-group">
+          <label for="bookmark-url">URL</label>
+          <input type="text" id="bookmark-url" placeholder="https://...">
+        </div>
+        <div class="form-group">
+          <label for="bookmark-location">保存先</label>
+          <select id="bookmark-location">
+            <option value="tabaq" selected>TABaqのみ (ローカル)</option>
+            <optgroup label="Firefox ブックマーク" id="firefox-folders-optgroup">
+              <!-- JSで動的に追加 -->
+            </optgroup>
+          </select>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-secondary" id="modal-cancel">キャンセル</button>
+        <button class="btn-primary" id="modal-save">保存</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- インポートモーダル -->
+  <div id="import-modal" class="modal-overlay hidden">
+    <div class="modal">
+      <div class="modal-header">
+        <h3>ブックマークをインポート</h3>
+        <button class="modal-close-btn">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p style="color: var(--text-secondary); margin-bottom: 10px;">インポートする項目を選択してください:</p>
+        <div id="import-tree-container"
+          style="max-height: 300px; overflow-y: auto; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 10px;">
+          <!-- Tree content populated by JS -->
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-secondary" id="import-cancel">キャンセル</button>
+        <button class="btn-primary" id="import-execute">インポート</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="newtab.js"></script>
+</body>
+
+</html>

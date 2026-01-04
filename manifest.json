@@ -1,0 +1,32 @@
+{
+    "manifest_version": 2,
+    "name": "TABaq",
+    "version": "1.0.0",
+    "description": "ブックマークをデスクトップ画面のように表示する拡張機能",
+    "icons": {
+        "48": "icons/icon-48.png",
+        "96": "icons/icon-96.png"
+    },
+    "permissions": [
+        "bookmarks",
+        "tabs"
+    ],
+    "browser_action": {
+        "default_icon": {
+            "48": "icons/icon-48.png",
+            "96": "icons/icon-96.png"
+        },
+        "default_title": "TABaq - ブックマークを開く"
+    },
+    "background": {
+        "scripts": [
+            "background.js"
+        ]
+    },
+    "web_accessible_resources": [
+        "newtab.html",
+        "newtab.css",
+        "newtab.js",
+        "icons/*"
+    ]
+}
