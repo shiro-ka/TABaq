@@ -1,8 +1,9 @@
 /* Layout */
 .desktop {
     min-height: 100vh;
+    min-width: 100vw;
     padding: 20px;
-    display: flex;
+    display: inline-flex;
     flex-direction: column;
 }
 

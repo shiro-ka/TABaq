@@ -1,12 +1,17 @@
 /* Icons Grid */
 .icons-container {
-    display: grid;
+    display: inline-grid;
     grid-template-columns: repeat(auto-fill, 96px);
     grid-template-rows: repeat(auto-fill, 88px);
+    grid-auto-columns: 96px;
+    /* はみ出した列の幅を固定 */
+    grid-auto-rows: 88px;
+    /* はみ出した行の高さも固定 */
     gap: 8px;
     padding: 16px;
-    height: 100vh;
-    overflow: hidden;
+    width: max-content;
+    min-width: 100%;
+    flex-grow: 1;
     place-content: start;
 }
 

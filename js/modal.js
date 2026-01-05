@@ -88,7 +88,12 @@ function setupImportModal() {
 
     function closeModal() {
         modal.classList.add('hidden');
-        document.getElementById('import-tree-container').innerHTML = '';
+        // Wait for the animation to finish before clearing, to avoid layout shift glitches
+        setTimeout(() => {
+            if (modal.classList.contains('hidden')) {
+                document.getElementById('import-tree-container').innerHTML = '';
+            }
+        }, 300);
     }
 
     closeBtn.addEventListener('click', closeModal);

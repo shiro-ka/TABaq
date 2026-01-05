@@ -1,6 +1,20 @@
 import { GRID_SETTINGS } from './constants.js';
 import { state } from './state.js';
 
+function getVisibleGridDimensions() {
+    const padding = GRID_SETTINGS.CONTAINER_PADDING * 2;
+    const colWidth = GRID_SETTINGS.CELL_WIDTH + GRID_SETTINGS.GAP;
+    const rowHeight = GRID_SETTINGS.CELL_HEIGHT + GRID_SETTINGS.GAP;
+
+    const cols = Math.floor((window.innerWidth - padding) / colWidth);
+    const rows = Math.floor((window.innerHeight - padding) / rowHeight);
+
+    return {
+        cols: Math.max(1, cols),
+        rows: Math.max(1, rows)
+    };
+}
+
 export function findEmptyPosition(folderId) {
     const occupied = new Set();
     const positions = state.gridPositions[folderId] || {};
@@ -10,9 +24,11 @@ export function findEmptyPosition(folderId) {
         occupied.add(`${pos.row},${pos.col}`);
     });
 
-    // 左上から順に空いている位置を探す
-    for (let row = 1; row <= GRID_SETTINGS.GRID_ROWS; row++) {
-        for (let col = 1; col <= 20; col++) { // 最大20列まで
+    const visible = getVisibleGridDimensions();
+
+    // 1. まず現在の表示領域内で空いている位置を探す
+    for (let row = 1; row <= visible.rows; row++) {
+        for (let col = 1; col <= visible.cols; col++) {
             const key = `${row},${col}`;
             if (!occupied.has(key)) {
                 return { row, col };
@@ -20,8 +36,18 @@ export function findEmptyPosition(folderId) {
         }
     }
 
-    // 見つからない場合は最後に追加
-    return { row: GRID_SETTINGS.GRID_ROWS, col: 20 };
+    // 2. 表示領域がいっぱいなら、仮想キャンバス（最大20列）まで広げて探す
+    for (let row = 1; row <= 20; row++) {
+        for (let col = 1; col <= 20; col++) {
+            const key = `${row},${col}`;
+            if (!occupied.has(key)) {
+                return { row, col };
+            }
+        }
+    }
+
+    // 見つからない場合は適当な位置（通常はありえない）
+    return { row: 20, col: 20 };
 }
 
 export function findNearestEmptyPosition(folderId, centerRow, centerCol, excludePos = null) {
