@@ -5,10 +5,20 @@
     box-sizing: border-box;
 }
 
+html,
+body {
+    height: 100%;
+}
+
 body {
     font-family: 'Segoe UI', 'Hiragino Sans', 'Meiryo', sans-serif;
     background: var(--bg-primary);
     min-height: 100vh;
     color: var(--text-primary);
-    overflow-x: hidden;
+    /* Let the browser handle main scrolling */
+    overflow: auto;
+
+    /* Firefox specific scrollbars */
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
 }
