@@ -31,6 +31,10 @@
     color: inherit;
     background: transparent;
     border: 1px solid transparent;
+}
+
+/* 新規に出現したアイテムだけ登場アニメを再生する（再描画で全員が再生されるのを防ぐ） */
+.icon-item.appear {
     animation: fadeIn 0.3s ease forwards;
 }
 

@@ -9,13 +9,14 @@
 
 /* Header */
 .header {
-    padding: 20px 30px;
+    padding: 8px 16px;
     background: rgba(26, 26, 46, 0.8);
     backdrop-filter: blur(10px);
     border-radius: var(--border-radius);
-    margin-bottom: 30px;
+    margin-bottom: 16px;
     box-shadow: var(--shadow);
     border: 1px solid rgba(255, 255, 255, 0.05);
+    align-self: flex-start;
 }
 
 .header-title {

@@ -1,4 +1,4 @@
-import { loadPositions, loadLocalBookmarks } from './js/state.js';
+import { loadPositions, loadLocalBookmarks, loadWidgets } from './js/state.js';
 import { loadBookmarks } from './js/bookmarks.js';
 import { setupContextMenu } from './js/contextmenu.js';
 import { setupDragAndDrop } from './js/dragdrop.js';
@@ -8,6 +8,7 @@ import { setupModals } from './js/modal.js';
 document.addEventListener('DOMContentLoaded', () => {
   loadPositions();
   loadLocalBookmarks();
+  loadWidgets();
   setupModals();
   loadBookmarks();
   setupContextMenu();

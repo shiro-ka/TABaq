@@ -124,14 +124,15 @@
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.6);
-    backdrop-filter: blur(4px);
+    background: rgba(0, 0, 0, 0.45);
+    backdrop-filter: blur(8px);
     display: flex;
     align-items: center;
     justify-content: center;
     z-index: 20000;
     opacity: 1;
-    transition: opacity 0.2s;
+    /* visibility も一緒に遷移させないと hidden が即適用されフェードが飛ぶ */
+    transition: opacity 0.2s, visibility 0.2s;
     visibility: visible;
 }
 
@@ -237,7 +238,8 @@
     cursor: pointer;
     border: none;
     font-weight: 500;
-    transition: all 0.2s;
+    /* all だと閉じる時に visibility/opacity まで独立アニメして取り残されるので、色だけに限定 */
+    transition: background-color 0.2s, border-color 0.2s, color 0.2s;
 }
 
 .btn-primary {
@@ -253,6 +255,20 @@
     background: transparent;
     color: var(--text-secondary);
     border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.btn-danger {
+    background: #ef4444;
+    color: white;
+}
+
+.btn-danger:hover {
+    background: #dc2626;
+}
+
+.dialog-message {
+    color: var(--text-secondary);
+    line-height: 1.6;
 }
 
 

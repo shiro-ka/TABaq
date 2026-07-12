@@ -1,6 +1,6 @@
 
 import { state, saveLocalBookmarks, getCurrentFolderId } from './state.js';
-import { displayItems, reloadCurrentFolder } from './bookmarks.js';
+import { reloadCurrentFolder } from './bookmarks.js';
 
 export function setupModals() {
     setupAddBookmarkModal();
@@ -287,31 +287,4 @@ export async function openImportModal() {
         console.error(e);
         container.innerHTML = 'Error loading bookmarks';
     }
-}
-
-
-
-async function refreshCurrentView() {
-    const currentFolderId = getCurrentFolderId();
-    let children = [];
-
-    // 1. Get browser bookmarks for this folder
-    if (currentFolderId === 'root') {
-        const tree = await browser.bookmarks.getTree();
-        children = tree[0].children || [];
-    } else {
-        try {
-            children = await browser.bookmarks.getChildren(currentFolderId);
-        } catch (e) {
-            console.error(e);
-        }
-    }
-
-    // 2. Get local bookmarks for this folder
-    const locals = state.localBookmarks.filter(b => b.parentId === currentFolderId);
-
-    // 3. Merge
-    const merged = [...children, ...locals];
-
-    displayItems(merged);
 }

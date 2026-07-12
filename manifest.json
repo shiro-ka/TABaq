@@ -23,6 +23,9 @@
             "background.js"
         ]
     },
+    "chrome_url_overrides": {
+        "newtab": "newtab.html"
+    },
     "web_accessible_resources": [
         "newtab.html",
         "newtab.css",

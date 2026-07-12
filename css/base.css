@@ -12,7 +12,12 @@ body {
 
 body {
     font-family: 'Segoe UI', 'Hiragino Sans', 'Meiryo', sans-serif;
-    background: var(--bg-primary);
+    /* デスクトップの壁紙: 暗いベースに淡い色グローを重ねて奥行きを出す */
+    background:
+        radial-gradient(circle at 18% 22%, rgba(99, 102, 241, 0.28), transparent 45%),
+        radial-gradient(circle at 82% 72%, rgba(96, 165, 250, 0.20), transparent 48%),
+        linear-gradient(135deg, #0f0f1a 0%, #16162b 55%, #0f0f1a 100%);
+    background-attachment: fixed;
     min-height: 100vh;
     color: var(--text-primary);
     /* Let the browser handle main scrolling */

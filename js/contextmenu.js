@@ -2,6 +2,9 @@ import { ICONS } from './constants.js';
 import { state, getCurrentFolderId, savePositions, saveLocalBookmarks } from './state.js';
 import { displayItems, reloadCurrentFolder } from './bookmarks.js';
 import { openAddBookmarkModal, openImportModal } from './modal.js';
+import { exportBackup, importBackup } from './backup.js';
+import { promptDialog, confirmDialog } from './dialog.js';
+import { addWidget } from './widgets.js';
 
 export function setupContextMenu() {
     // 右クリックでコンテキストメニューを表示（ページ全体で）
@@ -45,8 +48,11 @@ function showEmptyContextMenu(x, y) {
         { icon: ICONS.add, label: '新しいブックマーク', action: () => openAddBookmarkModal() },
         { icon: ICONS.import, label: 'ブックマークをインポート', action: () => importBookmarks() },
         { icon: ICONS.folder, label: '新しいフォルダ', action: () => createNewFolder() },
-        { icon: ICONS.add, label: 'ウィジェットを追加', action: () => alert('ウィジェット機能は開発中です') },
+        { icon: ICONS.add, label: 'ウィジェットを追加（時計）', action: () => addWidget('clock') },
         { icon: ICONS.edit, label: 'トレイの編集', action: () => alert('トレイ編集機能は開発中です') },
+        { separator: true },
+        { icon: ICONS.import, label: 'バックアップを書き出す', action: () => exportBackup() },
+        { icon: ICONS.import, label: 'バックアップから復元', action: () => importBackup() },
         { separator: true },
         { icon: ICONS.settings, label: 'TABaqの設定', action: () => openSettings() }
     ];
@@ -150,23 +156,23 @@ function hideContextMenu() {
 // === コンテキストメニューアクション ===
 
 async function createNewFolder() {
-    const title = prompt('フォルダ名を入力してください:');
+    const title = await promptDialog({ title: '新しいフォルダ', label: 'フォルダ名', placeholder: 'フォルダ名を入力', okText: '作成' });
     if (!title) return;
 
-    try {
-        const folderId = getCurrentFolderId();
-        const parentId = folderId === 'root' ? undefined : folderId;
+    // 独立ランチャーとしてローカル(localStorage)にフォルダを作る。
+    // url を持たない = フォルダ扱い（createIconElement の isFolder 判定）。
+    const currentFolderId = getCurrentFolderId();
+    const newFolder = {
+        id: 'local-' + Date.now(),
+        title: title,
+        parentId: currentFolderId,
+        dateAdded: Date.now(),
+        type: 'local'
+    };
 
-        await browser.bookmarks.create({
-            parentId: parentId,
-            title: title
-        });
-
-        reloadCurrentFolder();
-    } catch (error) {
-        console.error('フォルダ作成エラー:', error);
-        alert('フォルダの作成に失敗しました');
-    }
+    state.localBookmarks.push(newFolder);
+    saveLocalBookmarks();
+    reloadCurrentFolder();
 }
 
 
@@ -240,7 +246,7 @@ async function renameItem(bookmarkId) {
     const local = state.localBookmarks.find(b => b.id === bookmarkId);
 
     if (local) {
-        const newTitle = prompt('新しい名前を入力してください:', local.title);
+        const newTitle = await promptDialog({ title: '名前を変更', label: '新しい名前', value: local.title, okText: '変更' });
         if (newTitle && newTitle !== local.title) {
             local.title = newTitle;
             saveLocalBookmarks();
@@ -249,7 +255,7 @@ async function renameItem(bookmarkId) {
     } else {
         try {
             const bookmark = (await browser.bookmarks.get(bookmarkId))[0];
-            const newTitle = prompt('新しい名前を入力してください:', bookmark.title);
+            const newTitle = await promptDialog({ title: '名前を変更', label: '新しい名前', value: bookmark.title, okText: '変更' });
 
             if (newTitle && newTitle !== bookmark.title) {
                 await browser.bookmarks.update(bookmarkId, { title: newTitle });
@@ -266,7 +272,7 @@ async function editLink(bookmarkId) {
     const local = state.localBookmarks.find(b => b.id === bookmarkId);
 
     if (local) {
-        const newUrl = prompt('新しいURLを入力してください:', local.url);
+        const newUrl = await promptDialog({ title: 'リンクを変更', label: '新しいURL', value: local.url, placeholder: 'https://...', okText: '変更' });
         if (newUrl && newUrl !== local.url) {
             local.url = newUrl;
             saveLocalBookmarks();
@@ -275,7 +281,7 @@ async function editLink(bookmarkId) {
     } else {
         try {
             const bookmark = (await browser.bookmarks.get(bookmarkId))[0];
-            const newUrl = prompt('新しいURLを入力してください:', bookmark.url);
+            const newUrl = await promptDialog({ title: 'リンクを変更', label: '新しいURL', value: bookmark.url, placeholder: 'https://...', okText: '変更' });
 
             if (newUrl && newUrl !== bookmark.url) {
                 await browser.bookmarks.update(bookmarkId, { url: newUrl });
@@ -289,7 +295,8 @@ async function editLink(bookmarkId) {
 }
 
 async function deleteItem(bookmarkId) {
-    if (!confirm('本当に削除しますか？')) return;
+    const ok = await confirmDialog({ title: '削除の確認', message: '本当に削除しますか？', okText: '削除', danger: true });
+    if (!ok) return;
 
     const localIndex = state.localBookmarks.findIndex(b => b.id === bookmarkId);
 

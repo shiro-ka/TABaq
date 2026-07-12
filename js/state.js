@@ -2,11 +2,11 @@
 // State variables
 export const state = {
     currentPath: [],
-    navigationHistory: [],
     gridPositions: {},
     draggedElement: null,
     contextMenuTarget: null,
-    localBookmarks: []
+    localBookmarks: [],
+    widgets: []
 };
 
 // Accessors for more complex logic if needed, but direct export is fine for this size.
@@ -52,6 +52,25 @@ export function saveLocalBookmarks() {
         localStorage.setItem('tabaq-local-bookmarks', JSON.stringify(state.localBookmarks));
     } catch (error) {
         console.error('ローカルブックマークの保存エラー:', error);
+    }
+}
+
+// Widgets Management
+export function loadWidgets() {
+    try {
+        const saved = localStorage.getItem('tabaq-widgets');
+        state.widgets = saved ? JSON.parse(saved) : [];
+    } catch (error) {
+        console.error('ウィジェットの読み込みエラー:', error);
+        state.widgets = [];
+    }
+}
+
+export function saveWidgets() {
+    try {
+        localStorage.setItem('tabaq-widgets', JSON.stringify(state.widgets));
+    } catch (error) {
+        console.error('ウィジェットの保存エラー:', error);
     }
 }
 
