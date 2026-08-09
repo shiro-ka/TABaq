@@ -1,0 +1,7 @@
+# AMO 署名用の認証情報。絶対にコミットしない。
+.amo-credentials
+
+# web-ext sign が署名済み xpi を吐く先
+web-ext-artifacts/
+
+node_modules/
