@@ -1,4 +1,4 @@
-import { ICONS } from './constants.js';
+import { createIcon } from './utils.js';
 import { state, getCurrentFolderId, savePositions, saveLocalBookmarks } from './state.js';
 import { displayItems, reloadCurrentFolder } from './bookmarks.js';
 import { openAddBookmarkModal, openImportModal } from './modal.js';
@@ -45,37 +45,51 @@ function showEmptyContextMenu(x, y) {
     menu.innerHTML = '';
 
     const items = [
-        { icon: ICONS.add, label: '新しいブックマーク', action: () => openAddBookmarkModal() },
-        { icon: ICONS.import, label: 'ブックマークをインポート', action: () => importBookmarks() },
-        { icon: ICONS.folder, label: '新しいフォルダ', action: () => createNewFolder() },
-        { icon: ICONS.add, label: 'ウィジェットを追加（時計）', action: () => addWidget('clock') },
-        { icon: ICONS.edit, label: 'トレイの編集', action: () => alert('トレイ編集機能は開発中です') },
+        { icon: 'add', label: '新しいブックマーク', action: () => openAddBookmarkModal() },
+        { icon: 'import', label: 'ブックマークをインポート', action: () => importBookmarks() },
+        { icon: 'folder', label: '新しいフォルダ', action: () => createNewFolder() },
+        { icon: 'add', label: 'ウィジェットを追加（時計）', action: () => addWidget('clock') },
+        { icon: 'edit', label: 'トレイの編集', action: () => alert('トレイ編集機能は開発中です') },
         { separator: true },
-        { icon: ICONS.import, label: 'バックアップを書き出す', action: () => exportBackup() },
-        { icon: ICONS.import, label: 'バックアップから復元', action: () => importBackup() },
+        { icon: 'import', label: 'バックアップを書き出す', action: () => exportBackup() },
+        { icon: 'import', label: 'バックアップから復元', action: () => importBackup() },
         { separator: true },
-        { icon: ICONS.settings, label: 'TABaqの設定', action: () => openSettings() }
+        { icon: 'settings', label: 'TABaqの設定', action: () => openSettings() }
     ];
 
+    renderMenuItems(menu, items);
+    showContextMenu(x, y);
+}
+
+// メニュー項目を DOM として組み立てる。
+// ラベルは textContent で入れるので、将来ブックマーク名など可変の文字列を
+// 項目名に使っても HTML として解釈されない。
+function renderMenuItems(menu, items) {
     items.forEach(item => {
+        if (item.hide) return;
+
         if (item.separator) {
             const separator = document.createElement('div');
             separator.className = 'context-menu-separator';
             menu.appendChild(separator);
-        } else {
-            const menuItem = document.createElement('div');
-            menuItem.className = 'context-menu-item';
-            menuItem.innerHTML = `${item.icon}<span>${item.label}</span>`;
-            menuItem.addEventListener('click', (e) => {
-                e.stopPropagation();
-                item.action();
-                hideContextMenu();
-            });
-            menu.appendChild(menuItem);
+            return;
         }
-    });
 
-    showContextMenu(x, y);
+        const menuItem = document.createElement('div');
+        menuItem.className = `context-menu-item ${item.danger ? 'danger' : ''}`;
+        menuItem.appendChild(createIcon(item.icon));
+
+        const label = document.createElement('span');
+        label.textContent = item.label;
+        menuItem.appendChild(label);
+
+        menuItem.addEventListener('click', (e) => {
+            e.stopPropagation();
+            item.action();
+            hideContextMenu();
+        });
+        menu.appendChild(menuItem);
+    });
 }
 
 // ブックマークのコンテキストメニュー
@@ -91,41 +105,22 @@ function showBookmarkContextMenu(x, y, target) {
     if (!isFolder) {
         // ブックマークの場合
         items.push(
-            { icon: ICONS.newTab, label: '新しいタブで開く', action: () => openInNewTab(bookmarkId) },
-            { icon: ICONS.newWindow, label: '新しいウィンドウで開く', action: () => openInNewWindow(bookmarkId) },
-            { icon: ICONS.private, label: 'プライベートタブで開く', action: () => openInPrivateTab(bookmarkId) },
+            { icon: 'newTab', label: '新しいタブで開く', action: () => openInNewTab(bookmarkId) },
+            { icon: 'newWindow', label: '新しいウィンドウで開く', action: () => openInNewWindow(bookmarkId) },
+            { icon: 'private', label: 'プライベートタブで開く', action: () => openInPrivateTab(bookmarkId) },
             { separator: true }
         );
     }
 
     items.push(
-        { icon: ICONS.edit, label: '名前を変更', action: () => renameItem(bookmarkId) },
-        { icon: ICONS.link, label: 'リンクを変更', action: () => editLink(bookmarkId), hide: isFolder },
-        { icon: ICONS.delete, label: '削除', action: () => deleteItem(bookmarkId), danger: true },
+        { icon: 'edit', label: '名前を変更', action: () => renameItem(bookmarkId) },
+        { icon: 'link', label: 'リンクを変更', action: () => editLink(bookmarkId), hide: isFolder },
+        { icon: 'delete', label: '削除', action: () => deleteItem(bookmarkId), danger: true },
         { separator: true },
-        { icon: ICONS.settings, label: '設定', action: () => openSettings() }
+        { icon: 'settings', label: '設定', action: () => openSettings() }
     );
 
-    items.forEach(item => {
-        if (item.hide) return;
-
-        if (item.separator) {
-            const separator = document.createElement('div');
-            separator.className = 'context-menu-separator';
-            menu.appendChild(separator);
-        } else {
-            const menuItem = document.createElement('div');
-            menuItem.className = `context-menu-item ${item.danger ? 'danger' : ''}`;
-            menuItem.innerHTML = `${item.icon}<span>${item.label}</span>`;
-            menuItem.addEventListener('click', (e) => {
-                e.stopPropagation();
-                item.action();
-                hideContextMenu();
-            });
-            menu.appendChild(menuItem);
-        }
-    });
-
+    renderMenuItems(menu, items);
     showContextMenu(x, y);
 }
 

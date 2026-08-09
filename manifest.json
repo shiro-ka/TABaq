@@ -12,7 +12,12 @@
     ],
     "browser_specific_settings": {
         "gecko": {
-            "id": "tabaq@shiro-ka"
+            "id": "tabaq@shiro-ka",
+            "data_collection_permissions": {
+                "required": [
+                    "none"
+                ]
+            }
         }
     },
     "browser_action": {

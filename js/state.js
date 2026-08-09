@@ -1,3 +1,4 @@
+import { DEFAULT_BOOKMARKS } from './constants.js';
 
 // State variables
 export const state = {
@@ -39,7 +40,15 @@ export function loadLocalBookmarks() {
         if (saved) {
             state.localBookmarks = JSON.parse(saved);
         } else {
-            state.localBookmarks = [];
+            // キーが存在しない = 初回起動。ここでだけデフォルトを投入する。
+            // 「保存済みだが空配列」はユーザーが全部消した状態なので、この分岐に入らず復活しない。
+            state.localBookmarks = DEFAULT_BOOKMARKS.map(b => ({
+                ...b,
+                parentId: 'root',
+                dateAdded: Date.now(),
+                type: 'local'
+            }));
+            saveLocalBookmarks();
         }
     } catch (error) {
         console.error('ローカルブックマークの読み込みエラー:', error);

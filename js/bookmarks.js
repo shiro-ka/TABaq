@@ -1,6 +1,5 @@
-import { ICONS } from './constants.js';
 import { state, getCurrentFolderId, savePositions, saveLocalBookmarks } from './state.js';
-import { getFaviconCandidates } from './utils.js';
+import { getFaviconCandidates, createIcon } from './utils.js';
 import { findEmptyPosition } from './grid.js';
 import { handleDragStart, handleDragEnd, handleDragEnter, handleDragLeave } from './dragdrop.js';
 import { renderWidgets } from './widgets.js';
@@ -15,6 +14,19 @@ function getFolderChildren(folderId) {
     return state.localBookmarks.filter(b => b.parentId === folderId);
 }
 
+// 「空です」「読み込み失敗」表示。メッセージは textContent で入れる。
+function renderEmptyState(container, message) {
+    const wrap = document.createElement('div');
+    wrap.className = 'empty-state';
+    wrap.appendChild(createIcon('empty'));
+
+    const p = document.createElement('p');
+    p.textContent = message;
+    wrap.appendChild(p);
+
+    container.replaceChildren(wrap);
+}
+
 
 
 // ブックマーク読み込み
@@ -27,12 +39,7 @@ export async function loadBookmarks() {
         displayItems(mergedChildren);
     } catch (error) {
         console.error('ブックマーク読み込みエラー:', error);
-        container.innerHTML = `
-      <div class="empty-state">
-        ${ICONS.empty}
-        <p>ブックマークの読み込みに失敗しました</p>
-      </div>
-    `;
+        renderEmptyState(container, 'ブックマークの読み込みに失敗しました');
     }
 }
 
@@ -82,12 +89,7 @@ export function displayItems(items) {
 
     // アイテムもウィジェットも無い時だけ空表示を出す
     if (displayableItems.length === 0 && !(isHome && state.widgets.length > 0)) {
-        container.innerHTML = `
-      <div class="empty-state">
-        ${ICONS.empty}
-        <p>このフォルダにはブックマークがありません</p>
-      </div>
-    `;
+        renderEmptyState(container, 'このフォルダにはブックマークがありません');
         renderedIds = new Set();
         return;
     }
@@ -168,7 +170,7 @@ export function createIconElement(item, index, position, isNew = true) {
     iconImage.className = `icon-image ${isFolder ? 'folder' : 'bookmark'}`;
 
     if (isFolder) {
-        iconImage.innerHTML = ICONS.folder;
+        iconImage.appendChild(createIcon('folder'));
     } else {
         // ファビコンを候補順に試す（サイト自身 → DDG → SVG）
         const candidates = getFaviconCandidates(item.url);
@@ -182,12 +184,12 @@ export function createIconElement(item, index, position, isNew = true) {
                 if (idx < candidates.length) {
                     img.src = candidates[idx]; // 次の候補へ
                 } else {
-                    iconImage.innerHTML = ICONS.bookmark; // 全滅したら SVG
+                    iconImage.replaceChildren(createIcon('bookmark')); // 全滅したら SVG
                 }
             };
             iconImage.appendChild(img);
         } else {
-            iconImage.innerHTML = ICONS.bookmark;
+            iconImage.appendChild(createIcon('bookmark'));
         }
     }
 

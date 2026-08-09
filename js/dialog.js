@@ -1,15 +1,44 @@
 // 汎用のプロンプト/確認ダイアログ。
 // 既存の .modal-overlay / .modal のスタイルと開閉アニメをそのまま再利用する。
 
-function buildOverlay(innerHTML) {
+// ヘッダー/本文/フッターの骨組みを DOM で組み立てて表示する。
+// HTML 文字列を経由しないので、title やラベルに何が来ても markup として解釈されない。
+function buildDialog({ title, body, okText, danger = false }) {
     const overlay = document.createElement('div');
     overlay.className = 'modal-overlay hidden';
-    overlay.innerHTML = `<div class="modal">${innerHTML}</div>`;
+
+    const modal = document.createElement('div');
+    modal.className = 'modal';
+
+    const header = document.createElement('div');
+    header.className = 'modal-header';
+    const heading = document.createElement('h3');
+    heading.textContent = title;
+    header.appendChild(heading);
+
+    const bodyEl = document.createElement('div');
+    bodyEl.className = 'modal-body';
+    bodyEl.appendChild(body);
+
+    const footer = document.createElement('div');
+    footer.className = 'modal-footer';
+    const cancelBtn = document.createElement('button');
+    cancelBtn.className = 'btn-secondary';
+    cancelBtn.textContent = 'キャンセル';
+    const okBtn = document.createElement('button');
+    okBtn.className = danger ? 'btn-primary btn-danger' : 'btn-primary';
+    okBtn.textContent = okText;
+    footer.append(cancelBtn, okBtn);
+
+    modal.append(header, bodyEl, footer);
+    overlay.appendChild(modal);
     document.body.appendChild(overlay);
+
     // reflow を強制して hidden 状態を確定させてから外す → 開くアニメが走る
     void overlay.offsetHeight;
     overlay.classList.remove('hidden');
-    return overlay;
+
+    return { overlay, okBtn, cancelBtn };
 }
 
 function closeOverlay(overlay) {
@@ -21,28 +50,20 @@ function closeOverlay(overlay) {
 // テキスト入力ダイアログ。OK で入力文字列、キャンセル/Escape で null を返す。
 export function promptDialog({ title = '入力', label = '', value = '', placeholder = '', okText = 'OK' } = {}) {
     return new Promise(resolve => {
-        const overlay = buildOverlay(`
-            <div class="modal-header"><h3></h3></div>
-            <div class="modal-body">
-                <div class="form-group">
-                    <label></label>
-                    <input type="text">
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button class="btn-secondary" data-role="cancel">キャンセル</button>
-                <button class="btn-primary" data-role="ok"></button>
-            </div>
-        `);
+        const group = document.createElement('div');
+        group.className = 'form-group';
 
-        // 値は textContent / value で入れて HTML 混入を避ける
-        overlay.querySelector('.modal-header h3').textContent = title;
-        overlay.querySelector('.form-group label').textContent = label;
-        const okBtn = overlay.querySelector('[data-role="ok"]');
-        okBtn.textContent = okText;
-        const input = overlay.querySelector('input');
+        const labelEl = document.createElement('label');
+        labelEl.textContent = label;
+
+        const input = document.createElement('input');
+        input.type = 'text';
         input.value = value;
         input.placeholder = placeholder;
+
+        group.append(labelEl, input);
+
+        const { overlay, okBtn, cancelBtn } = buildDialog({ title, body: group, okText });
 
         function finish(result) {
             document.removeEventListener('keydown', onKey);
@@ -58,7 +79,7 @@ export function promptDialog({ title = '入力', label = '', value = '', placeho
             if (e.key === 'Enter') submit();
         }
 
-        overlay.querySelector('[data-role="cancel"]').addEventListener('click', () => finish(null));
+        cancelBtn.addEventListener('click', () => finish(null));
         okBtn.addEventListener('click', submit);
         overlay.addEventListener('click', e => { if (e.target === overlay) finish(null); });
         document.addEventListener('keydown', onKey);
@@ -71,20 +92,11 @@ export function promptDialog({ title = '入力', label = '', value = '', placeho
 // 確認ダイアログ。OK/Enter で true、キャンセル/Escape/外側クリックで false を返す。
 export function confirmDialog({ title = '確認', message = '', okText = 'OK', danger = false } = {}) {
     return new Promise(resolve => {
-        const overlay = buildOverlay(`
-            <div class="modal-header"><h3></h3></div>
-            <div class="modal-body"><p class="dialog-message"></p></div>
-            <div class="modal-footer">
-                <button class="btn-secondary" data-role="cancel">キャンセル</button>
-                <button class="btn-primary" data-role="ok"></button>
-            </div>
-        `);
+        const messageEl = document.createElement('p');
+        messageEl.className = 'dialog-message';
+        messageEl.textContent = message;
 
-        overlay.querySelector('.modal-header h3').textContent = title;
-        overlay.querySelector('.dialog-message').textContent = message;
-        const okBtn = overlay.querySelector('[data-role="ok"]');
-        okBtn.textContent = okText;
-        if (danger) okBtn.classList.add('btn-danger');
+        const { overlay, okBtn, cancelBtn } = buildDialog({ title, body: messageEl, okText, danger });
 
         function finish(result) {
             document.removeEventListener('keydown', onKey);
@@ -96,7 +108,7 @@ export function confirmDialog({ title = '確認', message = '', okText = 'OK', d
             if (e.key === 'Enter') finish(true);
         }
 
-        overlay.querySelector('[data-role="cancel"]').addEventListener('click', () => finish(false));
+        cancelBtn.addEventListener('click', () => finish(false));
         okBtn.addEventListener('click', () => finish(true));
         overlay.addEventListener('click', e => { if (e.target === overlay) finish(false); });
         document.addEventListener('keydown', onKey);
