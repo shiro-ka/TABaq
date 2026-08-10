@@ -3,7 +3,7 @@ import { state, getCurrentFolderId, savePositions, saveLocalBookmarks } from './
 import { displayItems, reloadCurrentFolder } from './bookmarks.js';
 import { openAddBookmarkModal, openImportModal } from './modal.js';
 import { exportBackup, importBackup } from './backup.js';
-import { promptDialog, confirmDialog } from './dialog.js';
+import { promptDialog, confirmDialog, alertDialog } from './dialog.js';
 import { addWidget } from './widgets.js';
 
 export function setupContextMenu() {
@@ -49,7 +49,7 @@ function showEmptyContextMenu(x, y) {
         { icon: 'import', label: 'ブックマークをインポート', action: () => importBookmarks() },
         { icon: 'folder', label: '新しいフォルダ', action: () => createNewFolder() },
         { icon: 'add', label: 'ウィジェットを追加（時計）', action: () => addWidget('clock') },
-        { icon: 'edit', label: 'トレイの編集', action: () => alert('トレイ編集機能は開発中です') },
+        { icon: 'edit', label: 'トレイの編集', action: () => alertDialog({ title: 'トレイの編集', message: 'この機能は開発中です' }) },
         { separator: true },
         { icon: 'import', label: 'バックアップを書き出す', action: () => exportBackup() },
         { icon: 'import', label: 'バックアップから復元', action: () => importBackup() },
@@ -177,7 +177,7 @@ function importBookmarks() {
 
 function openSettings() {
     // 設定ページを新しいタブで開く（将来的に実装）
-    alert('設定画面は開発中です。');
+    alertDialog({ title: 'TABaqの設定', message: 'この機能は開発中です' });
 }
 
 async function openInNewTab(bookmarkId) {
@@ -258,7 +258,7 @@ async function renameItem(bookmarkId) {
             }
         } catch (error) {
             console.error('名前変更エラー:', error);
-            alert('名前の変更に失敗しました');
+            await alertDialog({ title: '変更に失敗しました', message: '名前を変更できませんでした' });
         }
     }
 }
@@ -284,7 +284,7 @@ async function editLink(bookmarkId) {
             }
         } catch (error) {
             console.error('リンク変更エラー:', error);
-            alert('リンクの変更に失敗しました');
+            await alertDialog({ title: '変更に失敗しました', message: 'リンクを変更できませんでした' });
         }
     }
 }
@@ -328,7 +328,7 @@ async function deleteItem(bookmarkId) {
             reloadCurrentFolder();
         } catch (error) {
             console.error('削除エラー:', error);
-            alert('削除に失敗しました');
+            await alertDialog({ title: '削除に失敗しました', message: 'アイテムを削除できませんでした' });
         }
     }
 }

@@ -1,6 +1,7 @@
 
 import { state, saveLocalBookmarks, getCurrentFolderId } from './state.js';
 import { reloadCurrentFolder } from './bookmarks.js';
+import { alertDialog } from './dialog.js';
 
 export function setupModals() {
     setupAddBookmarkModal();
@@ -38,7 +39,7 @@ function setupAddBookmarkModal() {
         const location = document.getElementById('bookmark-location').value;
 
         if (!title || !url) {
-            alert('タイトルとURLを入力してください');
+            await alertDialog({ title: '入力してください', message: 'タイトルとURLの両方が必要です' });
             return;
         }
 
@@ -74,7 +75,7 @@ function setupAddBookmarkModal() {
             closeModal();
         } catch (error) {
             console.error('保存エラー:', error);
-            alert('ブックマークの保存に失敗しました: ' + error.message);
+            await alertDialog({ title: '保存に失敗しました', message: error.message });
         }
     });
 }
@@ -108,7 +109,7 @@ function setupImportModal() {
     executeBtn.addEventListener('click', async () => {
         const checkedBoxes = document.querySelectorAll('.import-checkbox:checked');
         if (checkedBoxes.length === 0) {
-            alert('インポートする項目を選択してください');
+            await alertDialog({ title: '選択してください', message: 'インポートする項目が選ばれていません' });
             return;
         }
 
@@ -162,13 +163,13 @@ function setupImportModal() {
             state.localBookmarks.push(...newBookmarks);
             saveLocalBookmarks();
 
-            alert(`${importCount}件のブックマークをインポートしました`);
             closeModal();
             reloadCurrentFolder();
+            await alertDialog({ title: 'インポートしました', message: `${importCount}件のブックマークを取り込みました` });
 
         } catch (error) {
             console.error('Import error:', error);
-            alert('インポートに失敗しました');
+            await alertDialog({ title: 'インポートに失敗しました', message: 'ブックマークの取り込み中にエラーが発生しました' });
         }
     });
 }

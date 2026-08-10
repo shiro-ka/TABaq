@@ -1,5 +1,6 @@
 import { state, saveLocalBookmarks, savePositions, saveWidgets } from './state.js';
 import { reloadCurrentFolder } from './bookmarks.js';
+import { alertDialog, confirmDialog } from './dialog.js';
 
 // 現在のローカルデータ(ブックマーク + アイコン配置)を JSON ファイルとして書き出す。
 // localStorage しか無い構成なので、プロファイル消失に備えた手動バックアップ手段。
@@ -37,16 +38,20 @@ export function importBackup() {
         if (!file) return;
 
         const reader = new FileReader();
-        reader.onload = () => {
+        reader.onload = async () => {
             try {
                 const data = JSON.parse(reader.result);
                 if (data.app !== 'TABaq' || !Array.isArray(data.localBookmarks)) {
-                    alert('TABaq のバックアップファイルではないようです');
+                    await alertDialog({ title: '復元できません', message: 'TABaq のバックアップファイルではないようです' });
                     return;
                 }
-                if (!confirm('現在の TABaq のデータをこのバックアップで置き換えます。よろしいですか？')) {
-                    return;
-                }
+                const ok = await confirmDialog({
+                    title: 'バックアップから復元',
+                    message: '現在の TABaq のデータをこのバックアップで置き換えます。よろしいですか？',
+                    okText: '復元',
+                    danger: true
+                });
+                if (!ok) return;
 
                 state.localBookmarks = data.localBookmarks;
                 state.gridPositions = data.gridPositions || {};
@@ -58,10 +63,10 @@ export function importBackup() {
                 // ルートに戻して再描画
                 state.currentPath = [];
                 reloadCurrentFolder();
-                alert('バックアップから復元しました');
+                await alertDialog({ title: '復元しました', message: 'バックアップからデータを復元しました' });
             } catch (e) {
                 console.error('バックアップ読み込みエラー:', e);
-                alert('バックアップの読み込みに失敗しました');
+                await alertDialog({ title: '復元に失敗しました', message: 'バックアップの読み込みに失敗しました' });
             }
         };
         reader.readAsText(file);

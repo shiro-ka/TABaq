@@ -3,7 +3,8 @@
 
 // ヘッダー/本文/フッターの骨組みを DOM で組み立てて表示する。
 // HTML 文字列を経由しないので、title やラベルに何が来ても markup として解釈されない。
-function buildDialog({ title, body, okText, danger = false }) {
+// showCancel=false にすると OK だけの通知ダイアログになる。
+function buildDialog({ title, body, okText, danger = false, showCancel = true }) {
     const overlay = document.createElement('div');
     overlay.className = 'modal-overlay hidden';
 
@@ -28,7 +29,8 @@ function buildDialog({ title, body, okText, danger = false }) {
     const okBtn = document.createElement('button');
     okBtn.className = danger ? 'btn-primary btn-danger' : 'btn-primary';
     okBtn.textContent = okText;
-    footer.append(cancelBtn, okBtn);
+    if (showCancel) footer.appendChild(cancelBtn);
+    footer.appendChild(okBtn);
 
     modal.append(header, bodyEl, footer);
     overlay.appendChild(modal);
@@ -86,6 +88,32 @@ export function promptDialog({ title = '入力', label = '', value = '', placeho
 
         input.focus();
         input.select();
+    });
+}
+
+// 通知ダイアログ。ネイティブの alert() の置き換え。閉じたら解決する。
+export function alertDialog({ title = 'お知らせ', message = '', okText = 'OK' } = {}) {
+    return new Promise(resolve => {
+        const messageEl = document.createElement('p');
+        messageEl.className = 'dialog-message';
+        messageEl.textContent = message;
+
+        const { overlay, okBtn } = buildDialog({ title, body: messageEl, okText, showCancel: false });
+
+        function finish() {
+            document.removeEventListener('keydown', onKey);
+            closeOverlay(overlay);
+            resolve();
+        }
+        function onKey(e) {
+            if (e.key === 'Escape' || e.key === 'Enter') finish();
+        }
+
+        okBtn.addEventListener('click', finish);
+        overlay.addEventListener('click', e => { if (e.target === overlay) finish(); });
+        document.addEventListener('keydown', onKey);
+
+        okBtn.focus();
     });
 }
 
