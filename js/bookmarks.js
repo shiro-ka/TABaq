@@ -1,11 +1,18 @@
 import { state, getCurrentFolderId, savePositions, saveLocalBookmarks } from './state.js';
-import { getFaviconCandidates, createIcon } from './utils.js';
+import { createIcon } from './utils.js';
+import { renderFavicon } from './favicon.js';
 import { findEmptyPosition } from './grid.js';
 import { handleDragStart, handleDragEnd, handleDragEnter, handleDragLeave } from './dragdrop.js';
 import { renderWidgets } from './widgets.js';
 
 // 前回の描画で画面に出ていたアイテムID。今回だけ新しく現れたIDに登場アニメを付けるために使う。
 let renderedIds = new Set();
+
+// ページを開いた直後の初回描画かどうか。
+// 新しいタブは毎回まっさらな読み込みなので、renderedIds も空から始まる。
+// そのままだと「全アイテムが新規」と判定されて毎回全部がアニメしてうるさい。
+// 初回だけはアニメを付けず、以降の追加・フォルダ移動でだけ再生する。
+let isFirstRender = true;
 
 // 指定フォルダ直下のアイテムを返す。
 // TABaq は独立ランチャーなので、表示するのは localStorage 上のローカルアイテムのみ。
@@ -91,6 +98,7 @@ export function displayItems(items) {
     if (displayableItems.length === 0 && !(isHome && state.widgets.length > 0)) {
         renderEmptyState(container, 'このフォルダにはブックマークがありません');
         renderedIds = new Set();
+        isFirstRender = false;
         return;
     }
 
@@ -119,14 +127,15 @@ export function displayItems(items) {
             state.gridPositions[currentFolderId][item.id] = position;
         }
 
-        // 前回いなかったアイテムだけ登場アニメを付ける
-        const isNew = !renderedIds.has(item.id);
+        // 前回いなかったアイテムだけ登場アニメを付ける（初回描画は除く）
+        const isNew = !isFirstRender && !renderedIds.has(item.id);
         const element = createIconElement(item, index, position, isNew);
         container.appendChild(element);
     });
 
     // 今回表示したIDを記録（次回の差分判定に使う）
     renderedIds = new Set(sorted.map(item => item.id));
+    isFirstRender = false;
 
     // ホームならウィジェットを重ねて描画
     if (isHome) renderWidgets(container);
@@ -172,25 +181,8 @@ export function createIconElement(item, index, position, isNew = true) {
     if (isFolder) {
         iconImage.appendChild(createIcon('folder'));
     } else {
-        // ファビコンを候補順に試す（サイト自身 → DDG → SVG）
-        const candidates = getFaviconCandidates(item.url);
-        if (candidates.length > 0) {
-            const img = document.createElement('img');
-            img.alt = '';
-            let idx = 0;
-            img.src = candidates[idx];
-            img.onerror = () => {
-                idx++;
-                if (idx < candidates.length) {
-                    img.src = candidates[idx]; // 次の候補へ
-                } else {
-                    iconImage.replaceChildren(createIcon('bookmark')); // 全滅したら SVG
-                }
-            };
-            iconImage.appendChild(img);
-        } else {
-            iconImage.appendChild(createIcon('bookmark'));
-        }
+        // 前回の解決結果を使って、失敗する候補を踏まずに取得する
+        renderFavicon(iconImage, item.url);
     }
 
     // タイトル部分

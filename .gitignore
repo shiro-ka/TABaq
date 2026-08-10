@@ -4,4 +4,7 @@
 # web-ext sign が署名済み xpi を吐く先
 web-ext-artifacts/
 
+# jsdom を使った手元の検証スクリプト置き場（正式なテスト基盤を入れるかは未決）
+.testing/
+
 node_modules/
