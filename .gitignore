@@ -7,3 +7,5 @@ web-ext-artifacts/
 .testing/
 
 node_modules/
+
+TABaq.xpi

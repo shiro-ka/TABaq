@@ -1,7 +1,7 @@
 {
     "manifest_version": 2,
     "name": "TABaq",
-    "version": "1.0.4",
+    "version": "1.1",
     "description": "ブックマークをデスクトップ画面のように表示する拡張機能",
     "icons": {
         "48": "icons/icon-48.png",
@@ -18,7 +18,8 @@
                 "required": [
                     "none"
                 ]
-            }
+            },
+            "update_url": "https://github.com/shiro-ka/TABaq/releases/download/dev/updates.json"
         }
     },
     "browser_action": {
