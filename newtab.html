@@ -1,82 +1,31 @@
 <!DOCTYPE html>
 <html lang="ja">
-
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>TABaq - ブックマーク</title>
+  <title>新しいタブ</title>
   <link rel="stylesheet" href="newtab.css">
 </head>
-
 <body>
-  <div class="desktop">
-    <header class="header" id="app-header">
-      <nav class="breadcrumb"><!-- パンくずは JS で生成 --></nav>
-    </header>
-    <main class="icons-container">
-      <!-- ブックマークアイコンがここに挿入される -->
-    </main>
-  </div>
-
-  <!-- コンテキストメニュー -->
-  <div class="context-menu">
-    <!-- メニュー項目は JavaScript で動的に生成 -->
-  </div>
-  <!-- モーダル -->
-  <div id="add-bookmark-modal" class="modal-overlay hidden">
-    <div class="modal">
-      <div class="modal-header">
-        <h3>新しいブックマーク</h3>
-        <button class="modal-close-btn">&times;</button>
-      </div>
-      <div class="modal-body">
-        <div class="form-group">
-          <label for="bookmark-title">タイトル</label>
-          <input type="text" id="bookmark-title" placeholder="タイトルを入力">
-        </div>
-        <div class="form-group">
-          <label for="bookmark-url">URL</label>
-          <input type="text" id="bookmark-url" placeholder="https://...">
-        </div>
-        <div class="form-group">
-          <label for="bookmark-location">保存先</label>
-          <select id="bookmark-location">
-            <option value="tabaq" selected>TABaqのみ (ローカル)</option>
-            <optgroup label="Firefox ブックマーク" id="firefox-folders-optgroup">
-              <!-- JSで動的に追加 -->
-            </optgroup>
-          </select>
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button class="btn-secondary" id="modal-cancel">キャンセル</button>
-        <button class="btn-primary" id="modal-save">保存</button>
-      </div>
+  <div class="wall"></div>
+  <div class="screen">
+    <div class="bar">
+      <button class="bar-btn bar-add" type="button">足す</button>
+      <button class="bar-btn bar-drawer" type="button">ブックマーク</button>
+      <button class="bar-btn bar-settings" type="button">設定</button>
     </div>
+    <div class="pages"><div class="track"></div></div>
+    <div class="dots"></div>
   </div>
-
-  <!-- インポートモーダル -->
-  <div id="import-modal" class="modal-overlay hidden">
-    <div class="modal">
-      <div class="modal-header">
-        <h3>ブックマークをインポート</h3>
-        <button class="modal-close-btn">&times;</button>
-      </div>
-      <div class="modal-body">
-        <p style="color: var(--text-secondary); margin-bottom: 10px;">インポートする項目を選択してください:</p>
-        <div id="import-tree-container"
-          style="max-height: 300px; overflow-y: auto; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 10px;">
-          <!-- Tree content populated by JS -->
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button class="btn-secondary" id="import-cancel">キャンセル</button>
-        <button class="btn-primary" id="import-execute">インポート</button>
-      </div>
+  <aside class="drawer" aria-label="ブックマーク">
+    <div class="drawer-head">
+      <h2>ブックマーク</h2>
+      <button class="round drawer-close" type="button" aria-label="閉じる">✕</button>
     </div>
-  </div>
-
+    <p class="drawer-note">ドラッグで好きな升目に、押すと空いている升目に置きます。</p>
+    <input class="drawer-search" type="search" placeholder="名前や URL で探す" aria-label="ブックマークを探す">
+    <div class="drawer-list"></div>
+  </aside>
   <script type="module" src="newtab.js"></script>
 </body>
-
 </html>
