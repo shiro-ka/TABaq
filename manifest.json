@@ -1,8 +1,8 @@
 {
     "manifest_version": 2,
     "name": "TABaq",
-    "version": "1.1",
-    "description": "ブックマークをデスクトップ画面のように表示する拡張機能",
+    "version": "2.0",
+    "description": "新しいタブを水溶 .oO°",
     "icons": {
         "48": "icons/icon-48.png",
         "96": "icons/icon-96.png"
