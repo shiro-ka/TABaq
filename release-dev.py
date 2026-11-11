@@ -8,7 +8,7 @@ import zipfile
 
 REPO = 'shiro-ka/TABaq'
 TAG = 'dev'
-ADDON_ID = 'tabaq@shiro-ka'
+ADDON_ID = 'tabaq@lab49'
 ROOT = os.path.dirname(os.path.abspath(__file__))
 API = 'https://api.github.com/repos/' + REPO
 DOWNLOAD = 'https://github.com/' + REPO + '/releases/download/' + TAG + '/'
